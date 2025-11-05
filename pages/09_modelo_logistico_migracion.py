@@ -5,13 +5,14 @@ import plotly.graph_objects as go
 import numpy as np
 from styles import INPUT_STYLE_COMPACT, INFO_CARD_STYLE
 
-dash.register_page(__name__, name='Modelo Logístico')
+dash.register_page(__name__, name='Modelo Logístico con Migración')
 
 page_content = dbc.Card(
     dbc.CardBody([
-        html.H2("Modelo de Crecimiento Logístico", className="card-title text-center mb-4"),
+        html.H2("Modelo de Crecimiento Logístico con Migración", className="card-title text-center mb-4"),
         html.P(
-            "El modelo logístico es una mejora realista del modelo exponencial. Introduce la 'capacidad de carga' (K), el tamaño máximo de población que un entorno puede sostener.",
+            "Este modelo amplía el modelo logístico clásico incorporando un término de migración constante (M), "
+            "que representa el flujo neto de individuos hacia o desde la población. Si M > 0, hay inmigración; si M < 0, hay emigración.",
             className="text-center"
         ),
         html.Hr(),
@@ -20,15 +21,19 @@ page_content = dbc.Card(
             dbc.Col(dbc.Card(dbc.CardBody([
                 html.H5("Ecuación Diferencial", className="card-title text-center"),
                 html.Div(
-                    html.Img(src=r"https://latex.codecogs.com/svg.latex?\frac{dP}{dt}=rP(1-\frac{P}{K})", 
-                             style={'height': '50px', 'display': 'block', 'margin': '10px auto'}),
+                    html.Img(src=r"https://latex.codecogs.com/svg.latex?\frac{dP}{dt}=rP(1-\frac{P}{K})+M", 
+                             style={'height': '60px', 'display': 'block', 'margin': '10px auto'})
                 ),
             ]), style=INFO_CARD_STYLE), md=6, className="mb-4"),
+
             dbc.Col(dbc.Card(dbc.CardBody([
-                html.H5("Solución de la E.D.O.", className="card-title text-center"),
+                html.H5("Solución", className="card-title text-center"),
                 html.Div(
-                    html.Img(src=r"https://latex.codecogs.com/svg.latex?P(t)=\frac{K}{1+\left(\frac{K-P_0}{P_0}\right)e^{-rt}}", 
-                             style={'height': '60px', 'display': 'block', 'margin': '10px auto'}),
+                    html.P(
+                        "No existe una solución analítica cerrada para este modelo. "
+                        "Se resuelve mediante integración numérica (método de Euler).",
+                        className="text-center", style={'padding': '10px'}
+                    )
                 ),
             ]), style=INFO_CARD_STYLE), md=6, className="mb-4"),
         ]),
@@ -37,17 +42,18 @@ page_content = dbc.Card(
             dbc.Col(dbc.Card(dbc.CardBody([
                 html.H5("¿Cuándo se usa?", className="card-title text-center"),
                 dcc.Markdown("""
-                    * **Ecología:** Crecimiento de poblaciones.
-                    * **Negocios:** Adopción de productos.
-                    * **Medicina:** Crecimiento de tumores.
+                    * **Ecología:** Especies con migración o flujo constante.  
+                    * **Sociología:** Crecimiento poblacional urbano con migración neta.  
+                    * **Epidemiología:** Movimientos de población entre regiones.
                 """, style={'paddingLeft': '20px'}),
             ]), style=INFO_CARD_STYLE), md=6, className="mb-4"),
 
             dbc.Col(dbc.Card(dbc.CardBody([
-                html.H5("Puntos Críticos", className="card-title text-center"),
+                html.H5("Puntos de Equilibrio", className="card-title text-center"),
                 dcc.Markdown("""
-                    * **P = 0:** Equilibrio **inestable**.  
-                    * **P = K:** Equilibrio **estable** (atractor).
+                    * Se obtiene resolviendo **rP(1 - P/K) + M = 0**.  
+                    * Si M > 0, la población puede superar K.  
+                    * Si M < 0, la población puede caer por debajo de K.
                 """, style={'paddingLeft': '20px'}),
             ]), style=INFO_CARD_STYLE), md=6, className="mb-4"),
         ]),
@@ -61,6 +67,7 @@ page_content = dbc.Card(
                         * **P₀:** Población inicial (en t=0).  
                         * **K:** Capacidad de carga del sistema.  
                         * **r:** Tasa de crecimiento intrínseca.  
+                        * **M:** Migración neta (positiva o negativa).  
                         * **t:** Tiempo.
                     """, style={'paddingLeft': '20px'})
                 ]), style=INFO_CARD_STYLE)
@@ -74,30 +81,34 @@ page_content = dbc.Card(
                 html.H4("Parámetros", className="text-center fw-bold mb-3"),
 
                 dbc.Label("Población Inicial (P₀):", className="small"),
-                dcc.Input(id='log-initial-pop-input', type='number', value=10, min=1, 
+                dcc.Input(id='logmig-initial-pop-input', type='number', value=20, min=1, 
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
                 dbc.Label("Tasa de Crecimiento (r):", className="small"),
-                dcc.Input(id='log-rate-input', type='number', value=0.15, min=0.01, step=0.01, 
+                dcc.Input(id='logmig-rate-input', type='number', value=0.15, min=0.01, step=0.01, 
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
                 dbc.Label("Capacidad de Carga (K):", className="small"),
-                dcc.Input(id='log-capacity-input', type='number', value=150, min=10, 
+                dcc.Input(id='logmig-capacity-input', type='number', value=150, min=10, 
+                          style=INPUT_STYLE_COMPACT, className="mb-3"),
+
+                dbc.Label("Migración (M):", className="small"),
+                dcc.Input(id='logmig-migration-input', type='number', value=5, step=0.1, 
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
                 dbc.Label("Tiempo Final (tₘₐₓ):", className="small"),
-                dcc.Input(id='log-time-max-input', type='number', value=60, min=1, step=0.5, 
+                dcc.Input(id='logmig-time-max-input', type='number', value=60, min=1, step=0.5, 
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
                 dbc.Label("Tiempo a Evaluar (t):", className="small"),
-                dcc.Input(id='log-time-input', type='number', value=20, min=0, step=0.5, 
+                dcc.Input(id='logmig-time-input', type='number', value=20, min=0, step=0.5, 
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
-                html.Div(id='log-pop-result', className="text-center fw-bold mt-3 text-primary"),
+                html.Div(id='logmig-pop-result', className="text-center fw-bold mt-3 text-primary"),
             ], md=3),
 
             dbc.Col(
-                dcc.Graph(id='logistic-graph', style={'height': '100%'}),
+                dcc.Graph(id='logistic-migration-graph', style={'height': '100%'}),
                 md=9
             ),
         ], align="center", className="mt-4"),
@@ -117,39 +128,45 @@ layout = html.Div([
 ])
 
 @callback(
-    [Output('logistic-graph', 'figure'),
-     Output('log-pop-result', 'children')],
-    [Input('log-initial-pop-input', 'value'),
-     Input('log-rate-input', 'value'),
-     Input('log-capacity-input', 'value'),
-     Input('log-time-max-input', 'value'),
-     Input('log-time-input', 'value')]
+    [Output('logistic-migration-graph', 'figure'),
+     Output('logmig-pop-result', 'children')],
+    [Input('logmig-initial-pop-input', 'value'),
+     Input('logmig-rate-input', 'value'),
+     Input('logmig-capacity-input', 'value'),
+     Input('logmig-migration-input', 'value'),
+     Input('logmig-time-max-input', 'value'),
+     Input('logmig-time-input', 'value')]
 )
-def update_logistic_graph(p0, r, k, t_max, t_eval):
-    if p0 is None or r is None or k is None or t_max is None or t_eval is None:
+def update_logistic_migration_graph(p0, r, k, m, t_max, t_eval):
+    if None in (p0, r, k, m, t_max, t_eval):
         return dash.no_update, ""
 
-    if p0 >= k:
-        p0 = k / 2
-
     t_eval = min(t_eval, t_max)
+    dt = 0.1
+    n_steps = int(t_max / dt)
+    t = np.linspace(0, t_max, n_steps)
+    P = np.zeros(n_steps)
+    P[0] = p0
 
-    t = np.linspace(0, t_max, 400)
-    P = k / (1 + ((k - p0) / p0) * np.exp(-r * t))
-    P_eval = k / (1 + ((k - p0) / p0) * np.exp(-r * t_eval))
+    for i in range(1, n_steps):
+        dPdt = r * P[i-1] * (1 - P[i-1] / k) + m
+        P[i] = P[i-1] + dPdt * dt
+        if P[i] < 0:
+            P[i] = 0
+
+    idx_eval = int(t_eval / dt)
+    P_eval = P[idx_eval] if idx_eval < len(P) else P[-1]
 
     fig = go.Figure()
-
     fig.add_trace(go.Scatter(
         x=t, y=P, mode='lines',
         line=dict(color='blue', width=2),
-        name='Ecuación Logística'
+        name='Ecuación Logística con Migración'
     ))
 
     fig.add_trace(go.Scatter(
         x=[0, t_max], y=[k, k],
-        mode='lines',
-        line=dict(color='red', width=2, dash='dash'),
+        mode='lines', line=dict(color='red', width=2, dash='dash'),
         name='Capacidad de carga (K)'
     ))
 
@@ -163,7 +180,7 @@ def update_logistic_graph(p0, r, k, t_max, t_eval):
     ))
 
     fig.update_layout(
-        title_text="Crecimiento Logístico: dP/dt = rP(1 - P/K)",
+        title_text="Crecimiento Logístico con Migración: dP/dt = rP(1 - P/K) + M",
         title_x=0.5,
         xaxis_title="Tiempo (t)",
         yaxis_title="Población (P)",
@@ -184,4 +201,4 @@ def update_logistic_graph(p0, r, k, t_max, t_eval):
     fig.update_xaxes(showline=True, linewidth=2, linecolor='red', gridcolor='lightgray', range=[0, t_max])
     fig.update_yaxes(showline=True, linewidth=2, linecolor='red', gridcolor='lightgray')
 
-    return fig, f" Población en t = {t_eval}: P(t) = {P_eval:.2f}"
+    return fig, f"Población en t = {t_eval}: P(t) = {P_eval:.2f}"

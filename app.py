@@ -1,7 +1,6 @@
 import dash
 import dash_bootstrap_components as dbc
-from dash import html
-from styles import NAV_LINK_STYLE
+from dash import html, dcc, Input, Output
 
 app = dash.Dash(
     __name__,
@@ -11,30 +10,43 @@ app = dash.Dash(
 )
 server = app.server
 
-header = html.Div([
-    html.Div(
-        html.H2("Técnicas de Modelamiento Matemático", className="text-white text-center p-3"),
-        style={'backgroundColor': '#E25822'}
-    ),
-    html.Div(
-        [
-            dbc.NavLink(
-                page['name'],
-                href=page['relative_path'],
-                style=NAV_LINK_STYLE,
-                className="shadow-sm"
-            )
-            for page in dash.page_registry.values()
-        ],
-        className="d-flex justify-content-center p-2",
-        style={'backgroundColor': '#E25822', 'borderTop': '2px solid white'}
-    )
-], className="mb-4 shadow")
+toggle_btn = html.Button("☰", id="toggle-btn", className="toggle-btn")
 
-app.layout = html.Div([
-    header,
-    dash.page_container
-])
+sidebar = html.Div(
+    [
+        html.H4("Modelamiento", className="text-white text-center mb-4"),
+        html.Div(
+            [
+                dbc.NavLink(page['name'], href=page['relative_path'], className="sidebar-link")
+                for page in dash.page_registry.values()
+            ],
+            className="d-flex flex-column"
+        )
+    ],
+    id="sidebar",
+    className="sidebar"
+)
 
-if __name__ == '__main__':
+content = html.Div(
+    [toggle_btn, dash.page_container],
+    id="content",
+    className="content-area"
+)
+
+app.layout = html.Div([sidebar, content])
+
+
+@app.callback(
+    Output("sidebar", "className"),
+    Output("content", "className"),
+    Input("toggle-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def toggle_sidebar(n):
+    if n and n % 2 == 1:
+        return "sidebar collapsed", "content-area expanded"
+    return "sidebar", "content-area"
+
+
+if __name__ == "__main__":
     app.run(debug=True)

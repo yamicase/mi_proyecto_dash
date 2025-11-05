@@ -13,7 +13,7 @@ NAV_LINK_STYLE = {
 PROFILE_IMAGE_STYLE = {
     'width': '100%',
     'borderRadius': '50%',
-    'border': '5px solid #E25822',
+    'border': '5px solid #E25822',  
     'boxShadow': '0 4px 10px rgba(0, 0, 0, 0.3)'
 }
 

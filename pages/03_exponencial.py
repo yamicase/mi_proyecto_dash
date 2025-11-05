@@ -163,5 +163,4 @@ def update_exponential_graph(p0, r, t_max, t_eval):
     fig.update_xaxes(showline=True, linewidth=2, linecolor='red', gridcolor='lightgray', range=[0, t_max])
     fig.update_yaxes(showline=True, linewidth=2, linecolor='red', gridcolor='lightgray')
 
-    # ✅ Corrección: se eliminan los ** para evitar que aparezcan literalmente
     return fig, f" Población en t = {t_eval}: P(t) = {P_eval:.2f}"

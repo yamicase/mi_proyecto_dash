@@ -23,3 +23,64 @@ p {
     line-height: 1.6;
     color: #34495E;
 }
+
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: #E25822;
+    padding: 20px 15px;
+    overflow-y: auto;
+    transition: 0.3s;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar-link {
+    color: white !important;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: 0.25s;
+    white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-link {
+    text-indent: -9999px;
+}
+
+.sidebar.collapsed .sidebar-link::before {
+    text-indent: 9999px;
+}
+
+.content-area {
+    margin-left: 260px;
+    padding: 30px;
+    transition: 0.3s;
+}
+
+.content-area.expanded {
+    margin-left: 70px;
+}
+
+.toggle-btn {
+    position: fixed;
+    top: 15px;
+    left: 270px;
+    background-color: #E25822;
+    border: none;
+    color: white;
+    font-size: 22px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.sidebar.collapsed~.content-area .toggle-btn {
+    left: 80px;
+}
