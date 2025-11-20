@@ -46,23 +46,23 @@ page_content = dbc.Card(
             dbc.Col([
                 html.H4("Parámetros", className="text-center fw-bold mb-3"),
 
-                dbc.Label("Susceptibles Iniciales (S₀):", className="small"),
+                dbc.Label("Ignorantes Iniciales (S₀):", className="small"),
                 dcc.Input(id='sir-s0', type='number', value=990, min=0,
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
-                dbc.Label("Infectados Iniciales (I₀):", className="small"),
+                dbc.Label("Divulgadores Iniciales (I₀):", className="small"),
                 dcc.Input(id='sir-i0', type='number', value=10, min=1,
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
-                dbc.Label("Recuperados Iniciales (R₀):", className="small"),
+                dbc.Label("Racionales Iniciales (R₀):", className="small"),
                 dcc.Input(id='sir-r0', type='number', value=0, min=0,
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
-                dbc.Label("Tasa de contagio (β):", className="small"),
+                dbc.Label("Tasa de divulgacion (β):", className="small"),
                 dcc.Input(id='sir-beta', type='number', value=0.002, step=0.001,
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
-                dbc.Label("Tasa de recuperación (γ):", className="small"),
+                dbc.Label("Tasa de le da lo mismo (γ):", className="small"),
                 dcc.Input(id='sir-gamma', type='number', value=0.5, step=0.01,
                           style=INPUT_STYLE_COMPACT, className="mb-3"),
 
@@ -110,9 +110,9 @@ def update_sir(s0, i0, r0, beta, gamma, tmax):
     S, I, R = sol.T
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=t, y=S, mode='lines', name="Susceptibles"))
-    fig.add_trace(go.Scatter(x=t, y=I, mode='lines', name="Infectados"))
-    fig.add_trace(go.Scatter(x=t, y=R, mode='lines', name="Recuperados"))
+    fig.add_trace(go.Scatter(x=t, y=S, mode='lines', name="Ignorante"))
+    fig.add_trace(go.Scatter(x=t, y=I, mode='lines', name="Divulgadores"))
+    fig.add_trace(go.Scatter(x=t, y=R, mode='lines', name="Racionales"))
 
     fig.update_layout(title="Dinámica del Modelo SIR",
                       xaxis_title="Tiempo", yaxis_title="Población",
